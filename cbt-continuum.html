@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CBT Continuum Worksheet</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2em;
+      background: #f9f9f9;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.7em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1em;
+    }
+    .beliefs {
+      display: flex;
+      gap: 2em;
+      margin-bottom: 1em;
+    }
+    .beliefs > div {
+      flex: 1;
+    }
+    .criterion {
+      border: 1px solid #ddd;
+      padding: 1em;
+      margin-bottom: 1em;
+      background: #fff;
+      border-radius: 5px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin-top: 0.5em;
+    }
+    .slider-row input[type="range"] {
+      flex-grow: 1;
+    }
+    button {
+      padding: 0.6em 1em;
+      margin-top: 1em;
+      cursor: pointer;
+      border: none;
+      background: #3498db;
+      color: white;
+      border-radius: 5px;
+    }
+    .remove-btn {
+      background: #e74c3c;
+    }
+    .flex {
+      display: flex;
+      gap: 1em;
+    }
+    footer {
+      text-align: center;
+      margin-top: 3em;
+      color: #777;
+      font-size: 0.9em;
+    }
+    .summary {
+      background: #eef9ee;
+      border: 1px solid #b8e2b8;
+      padding: 1em;
+      border-radius: 5px;
+      margin: 2em 0 3em;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>CBT Continuum Worksheet</h2>
+
+  <div class="beliefs">
+    <div>
+      <label>Initial Belief (0%)</label>
+      <input type="text" id="initialBelief" placeholder="E.g. I am not fit to be a parent">
+    </div>
+    <div>
+      <label>Revised Belief (100%)</label>
+      <input type="text" id="revisedBelief" placeholder="E.g. I am a caring parent who sometimes makes mistakes">
+    </div>
+  </div>
+
+  <div class="summary">
+    <label>Overall Continuum Position</label>
+    <div class="slider-row">
+      <span>0%</span>
+      <input type="range" id="overallSlider" min="0" max="100" disabled>
+      <span>100%</span>
+    </div>
+    <p><strong>Average Score: <span id="averageLabel">0%</span></strong></p>
+  </div>
+
+  <div id="criteriaContainer"></div>
+
+  <button onclick="addCriterion()">+ Add Criterion</button>
+
+  <label>Reflection / Revised Belief</label>
+  <textarea rows="4" placeholder="Use this space to summarise what you've learned or write a revised belief."></textarea>
+
+  <footer>
+    Designed by <strong>Meaningful Path Therapy</strong> (Abdullah Al-Shoaibi)
+  </footer>
+
+  <script>
+    const criteriaContainer = document.getElementById("criteriaContainer");
+    const overallSlider = document.getElementById("overallSlider");
+    const averageLabel = document.getElementById("averageLabel");
+
+    function createCriterion(c0 = '', c100 = '', value = 50) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "criterion";
+      wrapper.innerHTML = `
+        <label>Criterion</label>
+        <div class="flex">
+          <input type="text" placeholder="0% Description" class="desc0" value="${c0}">
+          <input type="text" placeholder="100% Description" class="desc100" value="${c100}">
+        </div>
+        <div class="slider-row">
+          <span>0%</span>
+          <input type="range" min="0" max="100" value="${value}" class="criterionSlider">
+          <span>100%</span>
+          <strong><span class="valueLabel">${value}%</span></strong>
+        </div>
+        <button class="remove-btn" onclick="this.parentElement.remove(); updateAverage()">Remove</button>
+      `;
+      criteriaContainer.appendChild(wrapper);
+
+      wrapper.querySelector(".criterionSlider").addEventListener("input", e => {
+        wrapper.querySelector(".valueLabel").textContent = e.target.value + "%";
+        updateAverage();
+      });
+
+      updateAverage();
+    }
+
+    function updateAverage() {
+      const sliders = document.querySelectorAll(".criterionSlider");
+      if (sliders.length === 0) {
+        overallSlider.value = 0;
+        averageLabel.textContent = "0%";
+        return;
+      }
+      let sum = 0;
+      sliders.forEach(s => sum += parseInt(s.value));
+      const avg = Math.round(sum / sliders.length);
+      overallSlider.value = avg;
+      averageLabel.textContent = avg + "%";
+    }
+
+    function addCriterion(c0 = '', c100 = '', value = 50) {
+      createCriterion(c0, c100, value);
+    }
+
+    // Default 6 criteria based on the worksheet example
+    const defaultCriteria = [
+      ["Ignores the child’s emotional and material needs", "Prioritises the child’s emotional and material needs"],
+      ["Neglectful, absent and detached", "Emotionally present and nurturing"],
+      ["Cold, critical or aggressive", "Positive, constructive, encouraging and disciplined when necessary"],
+      ["Criticises, insults or attacks the child", "Listens, supports and encourages learning"],
+      ["Rejects, abandons or places child at risk of harm", "Protects, supports and safeguards the child’s needs"],
+      ["Physically, sexually or emotionally abusive", "Models healthy, bonded and respectful behaviours"]
+    ];
+    defaultCriteria.forEach(([c0, c100]) => addCriterion(c0, c100, 50));
+  </script>
+
+</body>
+</html>
